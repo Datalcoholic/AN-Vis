@@ -34,5 +34,46 @@ const mudDip = flatJson.filter(d => d.bancada === 'MUD');
 const psuvDip = flatJson.filter(d => d.bancada === 'PSUV');
 
 // Completar los diputados que faltan por bancada
+const dipFaltanMud = [
+	{ name: 'Romel Edgardo Guzamana', estado: 'Amazonas' },
+	{ name: 'Julio Ygarza', estado: 'Amazonas' },
+	{ name: 'Nirma Guarulla', estado: 'Amazonas' }
+].map(d => ({
+	name: d.name,
+	img: 'NA',
+	condicion: 'NA',
+	bancada: 'NA',
+	circuncripcion: 'NA',
+	representante_de: 'NA',
+	estado: d.estado,
+	suplente: 'NA',
+	twitter: 'NA',
+	instagram: 'NA'
+}));
+
+const totalDipMud = [...mudDip, ...dipFaltanMud];
+
+//TODO:
+// Completar info de diputados del PSUV
+
+// console.log(totalDipMud);
+// console.log('mudDip', mudDip.length, 'Vs', 'totalDipMud', totalDipMud.length);
+//TODO:
 // Completar la informacion de partido, condicion
+
+// Save totalDipMud
+fs.writeFileSync(
+	'Diputados_mud.csv',
+	'name,img ,condicion ,bancada ,circuncripcion,representante_d,estado ,suplente ,twitter ,instagram\n'
+);
+
+totalDipMud
+	.sort((a, b) => a.condicion > b.condicion)
+	.forEach(d =>
+		fs.appendFileSync(
+			'Diputados_mud.csv',
+			`${d.name},${d.img} ,${d.condicion} ,${d.bancada} ,${d.circuncripcion},${d.representante_d},${d.estado} ,${d.suplente} ,${d.twitter} ,${d.instagram}\n`
+		)
+	);
+
 // Concatenar
