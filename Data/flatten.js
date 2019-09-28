@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs');
 
 // Extraer los elementos de cada diputado
 const raw = fs.readFileSync('dipData.json');
@@ -19,7 +19,7 @@ const flatJson = json.map(data => ({
 	name: data.name,
 	img: data.img,
 	condicion: data.condicion,
-	partido: getinfo(data.info, 'Partido'),
+	bancada: getinfo(data.info, 'Partido'),
 	circuncripcion: getinfo(data.info, 'Circunscripción'),
 	representante_de: getinfo(data.info, 'Representante de'),
 	estado: getinfo(data.info, 'Estado'),
@@ -28,8 +28,11 @@ const flatJson = json.map(data => ({
 	instagram: getinfo(data.info, 'Instagram')
 }));
 
-console.log(flatJson);
 // Dividir los diputados por bancada
+
+const mudDip = flatJson.filter(d => d.bancada === 'MUD');
+const psuvDip = flatJson.filter(d => d.bancada === 'PSUV');
+
 // Completar los diputados que faltan por bancada
 // Completar la informacion de partido, condicion
 // Concatenar
