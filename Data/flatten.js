@@ -3,8 +3,9 @@ const csv = require('csv-parser');
 const iconv = require('iconv-lite');
 
 // Extraer los elementos de cada diputado
-const raw = fs.readFileSync('dipData.json');
-const json = JSON.parse(raw);
+const raw = fs.readFileSync('dipData.json', { encoding: 'latin1' });
+const encode = iconv.encode(raw, 'iso885915');
+const json = JSON.parse(encode);
 
 // 1.- Filtrar array de info por el valor que se desea extraer
 function getinfo(array, regex) {
@@ -63,12 +64,15 @@ fs.createReadStream('../Data/diputadosMud.csv')
 	.pipe(csv({ separator: ';' }))
 	.on('data', d => dataMudDipRaw.push(d))
 	.on('end', () => {
-		//console.log(dataMudDipRaw);
+		console.log(dataMudDipRaw);
 		let match = [];
-		let noMatch = [];
+
 		totalDipMud.forEach(d => {
 			dataMudDipRaw.forEach(r => {
-				if (d.name.trim() === r.name.trim()) {
+				if (
+					d.name.trim().replace('ń', 'ñ') ===
+					r.name.trim().replace('ń', 'ñ')
+				) {
 					match.push({
 						name: d.name,
 						img: d.img,
@@ -81,18 +85,51 @@ fs.createReadStream('../Data/diputadosMud.csv')
 						suplente: d.suplente,
 						estado_legal: r.estado_legal
 					});
-					console.log(
-						'total Dip',
-						d.name.trim(),
-						'total Dip json',
-						r.name.trim(),
-						'true'
-					);
+
+					// console.log(
+					// 	'total Dip',
+					// 	d.name.trim(),
+					// 	'total Dip json',
+					// 	r.name.trim(),
+					// 	'true'
+					// );
 				}
 			});
 		});
 		console.log(match.length, 'de', dataMudDipRaw.length);
 		console.log(match);
+
+		let name1 = [];
+		let matchNames = [];
+
+		totalDipMud.forEach(a => name1.push(a.name.replace('ń', 'ñ')));
+		dataMudDipRaw.forEach(a => matchNames.push(a.name.replace('ń', 'ñ')));
+
+		let difference = name1
+			.filter(x => !matchNames.includes(x))
+			.concat(matchNames.filter(x => !name1.includes(x)));
+		console.log(difference);
+
+		//Creacion del archivo Donde esat consolidado toda la data
+		fs.writeFile(
+			'../Data/mudDipClean.csv',
+			'name;img;condicion;bancada;partido;circuncripcion;representante_de;estado;suplente;estado_legal\n',
+			'utf8',
+			err => console.log(err)
+		);
+
+		match.forEach(d =>
+			fs.appendFile(
+				'../Data/mudDipClean.csv',
+				`${d.name};${d.img};${d.condicion};${d.bancada};${d.partido};${d.circuncripcion};${d.representante_de};${d.estado};${d.suplente};${d.estado_legal}\n`,
+				'utf8',
+				err => {
+					if (err) {
+						console.log(err);
+					}
+				}
+			)
+		);
 	});
 
 //TODO:
